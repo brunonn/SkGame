@@ -5,7 +5,9 @@ import {
   StyleSheet,
   SafeAreaView,
   Animated,
-  TouchableOpacity
+  TouchableOpacity,
+  Image,
+  Dimensions
 } from "react-native";
 
 import { Emitter } from "react-native-particles";
@@ -18,54 +20,56 @@ import MyFlipCard from "../components/MyFlipCard";
 class GameScreen2 extends React.Component {
   constructor(props) {
     super(props);
-    this.opacity = new Animated.Value(0);
-    this.state = { doneClicked: false };
+    this.backgroundOpacity = new Animated.Value(0);
+    this.imageOpacity = new Animated.Value(0);
+
+  }
+
+  
+  resetAllCards = () => {
+    this.refs.trick.resetCard();
+    this.refs.stance.resetCard();
+    this.refs.rotation.resetCard();
+    this.refs.special.resetCard();
   }
 
   toggleBackgroundColor = () => {
-    Animated.timing(this.opacity, {
-      toValue: 0.6,
-      duration: 500
+    Animated.timing(this.backgroundOpacity, {
+      toValue: 0.4,
+      duration: 400
     }).start(() => {
-      Animated.timing(this.opacity, {
+      Animated.timing(this.backgroundOpacity, {
         toValue: 0,
-        duration: 500
-      }).start();
+        duration: 400
+      }).start(() => {this.props.onNextPlayer(); this.resetAllCards()});
     });
   };
 
-  renderParticles = () => {
-    if (this.state.doneClicked) {
-      return (
-        <Emitter
-          numberOfParticles={20}
-          emissionRate={20}
-          interval={20}
-          particleLife={600}
-          direction={-90}
-          spread={360}
-          gravity={-0.9}
-          fromPosition={{ x: 180, y: 300 }}
-        >
-          <Icon name="" size={24} />   
-        </Emitter>
-      );
-    }
+  toggleBackgroundImage = () => {
+    Animated.timing(this.imageOpacity, {
+      toValue: 0.3,
+      duration: 400
+    }).start(() => {
+      Animated.timing(this.imageOpacity, {
+        toValue: 0,
+        duration: 400
+      }).start(() => {this.props.onTricksDone(); this.props.onNextPlayer(); this.resetAllCards()});
+    });
   };
 
   render() {
     return (
       <SafeAreaView style={styles.screen}>
         <Header title="Sk8Cards" />
-        <PlayerBar currentPlayer={this.props.players[0]} />
+        <PlayerBar currentPlayer={this.props.player} />
         <View style={styles.grid}>
           <View style={styles.rowGrid}>
-            <MyFlipCard chosenSet="Tricks" />
-            <MyFlipCard chosenSet="Stances" />
+            <MyFlipCard chosenSet="Tricks" whenClicked={this.props.addPoint}  ref="trick"/>
+            <MyFlipCard chosenSet="Stances" whenClicked={this.props.addPoint} ref="stance"/>
           </View>
           <View style={styles.rowGrid}>
-            <MyFlipCard chosenSet="Rotations" />
-            <MyFlipCard chosenSet="Specials" />
+            <MyFlipCard chosenSet="Rotations" whenClicked={this.props.addPoint} ref="rotation"/>
+            <MyFlipCard chosenSet="Specials" whenClicked={this.props.addPoint} ref="special"/>
           </View>
         </View>
 
@@ -77,17 +81,13 @@ class GameScreen2 extends React.Component {
             <Text style={styles.buttonText}>Not Really</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={() => {
-            this.setState({ doneClicked: true });
-            setTimeout(() => {
-              this.setState({ doneClicked: false });
-            }, 5000);
-          }}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={this.toggleBackgroundImage}
+          >
             <Text style={styles.buttonText}>Done</Text>
           </TouchableOpacity>
         </View>
-
-        {this.renderParticles()}
 
         <Animated.View
           pointerEvents="none"
@@ -100,9 +100,31 @@ class GameScreen2 extends React.Component {
             justifyContent: "center",
             alignItems: "center",
             backgroundColor: "#f00",
-            opacity: this.opacity
+            opacity: this.backgroundOpacity
           }}
         />
+        <Animated.View
+          pointerEvents="none"
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            top: 0,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#0f0",
+            opacity: this.imageOpacity
+          }}
+        >
+          <Image
+            style={{
+              width: Dimensions.get("screen").width,
+              height: Dimensions.get("screen").height
+            }}
+            source={require("../assets/img/luan.jpg")}
+          />
+        </Animated.View>
       </SafeAreaView>
     );
   }
@@ -122,7 +144,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    width: "85%"
+    width: "85%",
+    marginTop: 5
   },
   button: {
     borderWidth: 1,

@@ -35,7 +35,7 @@ class MyFlipCard extends React.Component {
     this.setState({ text: "" });
     this.setState({ isClicked: false });
     console.log("Is this happening? ");
-  };
+  }
 
   pickText = () => {
     this.state.text = this.state.cardSet[
@@ -43,7 +43,7 @@ class MyFlipCard extends React.Component {
     ];
     if (typeof this.state.text === "undefined") {
       this.state.text = "No more cards left";
-    } 
+    }
     let newArray = this.state.cardSet.filter((value, index, arr) => {
       return value != this.state.text;
     });
@@ -52,7 +52,7 @@ class MyFlipCard extends React.Component {
 
   animateAndChoiceHandler() {
     if (!this.state.isClicked) {
-      //this.setState({isClicked: true});
+      this.setState({ isClicked: true });
 
       this.animatedValue.setValue(0.5);
 
@@ -61,6 +61,9 @@ class MyFlipCard extends React.Component {
         duration: 600,
         easing: Easing.linear
       }).start(() => this.pickText());
+      if (this.state.cardSet.length != 0) {
+        this.props.whenClicked();
+      }
     }
   }
 

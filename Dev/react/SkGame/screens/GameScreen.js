@@ -2,8 +2,8 @@ import React, { useRef, useState } from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import Header from '../components/Header';
 import PlayerBar from '../components/PlayerBar';
-import Card from '../components/Card';
-import FlipCard from 'react-native-flip-card'
+import Card from '../patterns/Card';
+
 
 
 import Colors from '../constants/Colors';
